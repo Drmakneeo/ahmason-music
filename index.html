@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Twilio Music</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" type="text/css">
+  <link rel="stylesheet" href="https://rawgit.com/christopherturner/TwilioMusic2.0/master/style.css" type="text/css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Welcome to PrepTech!</h1>
+    <h3>This is a website that plays music from soundcloud based on text messages.</h3>
+    <h2 class="somethin">Text a song title or artist's name to +1 (626)-238-0340</h2>
+    <div id="song"></div>
+  </div>
+  <footer class="footer">
+    <div class="container">
+      <p class="somethin-else text-muted">Created by Christopher Turner, James Anderson, and Mateo Abascal</p>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src='/socket.io/socket.io.js'></script>
+  <script src="http://connect.soundcloud.com/sdk.js"></script>
+  <script>
+    SC.initialize({client_id: '9614e613efd137879d1dfca186c60eac'});
+    var socket = io();
+    var currentSong;
+
+    socket.on('sms', function(song) {
+      if (currentSong !== undefined) {
+        currentSong.stop();
+      }
+      $('#song').html(song);
+      SC.get('/tracks', {q: song}, function(songs) {
+        SC.stream('/tracks/'+songs[0]['id'], function(sound) {
+	  currentSong = sound;
+          sound.play();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
